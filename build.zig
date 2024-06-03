@@ -10,12 +10,12 @@ pub fn build(b: *std.Build) void {
             .target = target,
             .optimize = optimize,
         });
-        const flags = [_][]const u8 {
+        const flags = [_][]const u8{
             "-DZ7_EXTERNAL_CODECS",
             // unaligned access utilized, see C/CpuArch.h
             "-fno-sanitize=alignment",
         };
-        exe.addCSourceFiles(&[_][]const u8 {
+        exe.addCSourceFiles(.{ .files = &[_][]const u8{
             "C/7zAlloc.c",
             "C/7zBuf.c",
             "C/7zCrc.c",
@@ -36,7 +36,7 @@ pub fn build(b: *std.Build) void {
             "C/Ppmd7Dec.c",
             "C/Util/7z/7zMain.c",
             "C/Util/7z/Precomp.c",
-        }, &flags);
+        }, .flags = &flags });
         exe.linkLibC();
         b.installArtifact(exe);
     }
@@ -46,18 +46,18 @@ pub fn build(b: *std.Build) void {
             .target = target,
             .optimize = optimize,
         });
-        const flags = [_][]const u8 {
+        const flags = [_][]const u8{
             "-DZ7_EXTERNAL_CODECS",
             // unaligned access utilized, see C/CpuArch.h
             "-fno-sanitize=alignment",
         };
-        exe.addCSourceFiles(&(
-            common_src ++
-            console_src ++
-            ui_common_src ++
-            _7z_common_src ++
-            ar_common_src ++
-            [_][]const u8 {
+        exe.addCSourceFiles(.{
+            .files = &(common_src ++
+                console_src ++
+                ui_common_src ++
+                _7z_common_src ++
+                ar_common_src ++
+                [_][]const u8{
                 //
                 "CPP/Windows/DLL.cpp",
                 "CPP/Windows/ErrorMsg.cpp",
@@ -88,15 +88,16 @@ pub fn build(b: *std.Build) void {
                 // TODO: I think there is an assembly version on some platforms
                 //     i.e. ASM/x86/7xCrcOpt.asm
                 "C/7zCrcOpt.c",
-            }
-        ), &flags);
+            }),
+            .flags = &flags,
+        });
         exe.linkLibCpp();
         exe.linkSystemLibrary("oleaut32");
         b.installArtifact(exe);
     }
 }
 
-const common_src = [_][]const u8 {
+const common_src = [_][]const u8{
     "CPP/Common/CommandLineParser.cpp",
     "CPP/Common/CRC.cpp",
     "CPP/Common/DynLimBuf.cpp",
@@ -113,7 +114,7 @@ const common_src = [_][]const u8 {
     "CPP/Common/Wildcard.cpp",
 };
 
-const console_src = [_][]const u8 {
+const console_src = [_][]const u8{
     "CPP/7zip/UI/Console/BenchCon.cpp",
     "CPP/7zip/UI/Console/ConsoleClose.cpp",
     "CPP/7zip/UI/Console/ExtractCallbackConsole.cpp",
@@ -127,7 +128,7 @@ const console_src = [_][]const u8 {
     "CPP/7zip/UI/Console/UserInputUtils.cpp",
 };
 
-const ui_common_src = [_][]const u8 {
+const ui_common_src = [_][]const u8{
     "CPP/7zip/UI/Common/ArchiveCommandLine.cpp",
     "CPP/7zip/UI/Common/ArchiveExtractCallback.cpp",
     "CPP/7zip/UI/Common/ArchiveOpenCallback.cpp",
@@ -150,7 +151,7 @@ const ui_common_src = [_][]const u8 {
     "CPP/7zip/UI/Common/UpdateProduce.cpp",
 };
 
-const _7z_common_src = [_][]const u8 {
+const _7z_common_src = [_][]const u8{
     "CPP/7zip/Common/CreateCoder.cpp",
     "CPP/7zip/Common/FilePathAutoRename.cpp",
     "CPP/7zip/Common/FileStreams.cpp",
@@ -165,7 +166,7 @@ const _7z_common_src = [_][]const u8 {
     "CPP/7zip/Common/UniqBlocks.cpp",
 };
 
-const ar_common_src = [_][]const u8 {
+const ar_common_src = [_][]const u8{
     "CPP/7zip/Archive/Common/ItemNameUtils.cpp",
     "CPP/7zip/Archive/Common/OutStreamWithCRC.cpp",
 };
